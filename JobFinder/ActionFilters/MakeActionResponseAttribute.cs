@@ -1,13 +1,21 @@
 ﻿using JobFinder.Application.Dtos.ServiceResultModels;
+using JobFinder.Domain.Entities;
+using JobFinder.Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System;
 using System.Linq;
 
 namespace JobFinder.ActionFilters
 {
-    public class MakeActionResponseAttribute : Attribute, IActionFilter
+    public class MakeActionResponseFilter : IActionFilter
     {
+        private readonly IRepository _repo;
+
+        public MakeActionResponseFilter(IRepository repo)
+        {
+            _repo = repo;
+        }
+
         public void OnActionExecuted(ActionExecutedContext context)
         {
             var result = new ServiceResult();
@@ -34,6 +42,15 @@ namespace JobFinder.ActionFilters
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
+            var guestId = context.HttpContext.Request.Headers.Where(x => x.Key == "userId").SelectMany(x => x.Value).FirstOrDefault();
+            if (guestId != default)
+            {
+                if (!_repo.FilterAsNoTracking<User>(x => x.IdentityKey == guestId).Any())
+                {
+                    _repo.Create(new User {IdentityKey = guestId});
+                    _repo.SaveChanges();
+                }
+            }
             if (context.ModelState.IsValid)
                 return;
             var result = new ServiceResult();

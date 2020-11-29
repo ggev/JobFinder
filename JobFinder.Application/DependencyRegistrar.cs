@@ -3,6 +3,7 @@ using JobFinder.Application.Services.Companies;
 using JobFinder.Application.Services.Files;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using JobFinder.Application.Services.Jobs;
 
 namespace JobFinder.Application
 {
@@ -15,6 +16,7 @@ namespace JobFinder.Application
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<ICompanyService, CompanyService>();
             services.AddScoped<ICategoryService, CategoryService>();
+            services.AddScoped<IJobService, JobService>();
         }
     }
 }
