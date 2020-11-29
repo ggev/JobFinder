@@ -35,7 +35,7 @@ namespace JobFinder.Controllers
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<PagingResponseModel<JobListModel>> GetList(JobPagingRequestModel model, [FromHeader] string userId)
+        public async Task<PagingResponseModel<JobListModel>> GetList([FromBody]JobPagingRequestModel model, [FromHeader] string userId)
         {
             return await _service.GetList(model, userId);
         }
