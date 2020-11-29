@@ -1,0 +1,377 @@
+﻿.P-bg-mage {
+    position: absolute;
+    height: 70vh;
+    width: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    left: 0;
+    top: 0;
+}
+
+
+    .P-bg-mage:before {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.4), #d0d0d0 90%);
+    }
+
+.P-header {
+    padding: 35px 0 45px 0;
+    position: relative;
+    z-index: 99;
+}
+
+    .P-header ul li {
+        color: white;
+    }
+
+        .P-header ul li + li {
+            position: relative;
+            padding-left: 15px;
+            margin-left: 10px;
+        }
+
+            .P-header ul li + li:before {
+                position: absolute;
+                content: '»';
+                left: 0;
+                top: 0;
+            }
+
+    .P-header h3 {
+        font-size: 30px;
+        font-weight: bold;
+        color: white;
+        margin-top: 10px;
+    }
+
+
+.P-search-box .E-select-component {
+    border: none;
+}
+
+.P-search-box {
+    width: 270px;
+}
+
+    .P-search-box .E-select-component {
+        height: 45px;
+    }
+
+    .P-search-box .E-select-header {
+        background-color: white;
+        padding: 0 25px 0 15px;
+        height: 45px;
+        border: 1px solid rgb(203, 203, 203);
+    }
+
+        .P-search-box .E-select-header i {
+            right: 5px;
+        }
+
+.P-input-box {
+    width: calc(100% - 200px);
+}
+
+    .P-input-box input {
+        width: 100%;
+        background-color: white;
+        padding: 0 15px;
+        height: 45px;
+        border: 1px solid rgb(203, 203, 203);
+    }
+
+    .P-input-box label {
+        width: 100%;
+        display: block;
+    }
+
+.P-search-block {
+    position: relative;
+    z-index: 99;
+}
+
+.P-search-btn {
+    width: 200px;
+}
+
+    .P-search-btn button {
+        width: 100%;
+        height: 45px;
+        background-color: #198e19;
+        font-size: 18px;
+        text-transform: uppercase;
+        color: white;
+        cursor: pointer;
+    }
+
+.P-search-block {
+    box-shadow: 0 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.P-filter-box + .P-filter-box {
+    margin-top: 25px;
+}
+
+.P-filter-box .P-filter-box-header {
+    min-height: 45px;
+    background-color: #eeeded;
+    padding: 0 15px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.P-filter-box-header h3 {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.P-main-block {
+    padding: 65px 0 125px 0;
+    position: relative;
+    z-index: 99;
+    display: flex;
+    align-items: flex-start;
+}
+
+.P-left-path {
+    width: 25%;
+}
+
+.P-right-path {
+    width: 75%;
+    padding-left: 25px;
+}
+
+.P-filter-img {
+    width: 20px;
+    height: 20px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    display: block;
+}
+
+.P-filter-box-body {
+    max-height: 0;
+    overflow: hidden;
+    background-color: white;
+    transition: 0.3s;
+}
+
+    .P-filter-box-body.P-open-filter-box {
+        max-height: 1000px;
+    }
+
+    .P-filter-box-body ul {
+        padding: 15px;
+    }
+
+        .P-filter-box-body ul li {
+            padding: 5px 0;
+        }
+
+.P-checkbox-block label {
+    display: block;
+    cursor: pointer;
+    position: relative;
+}
+
+.P-checkbox-block span {
+    position: absolute;
+    width: 17px;
+    height: 17px;
+    border-radius: 4px;
+    transition: 0.3s;
+    left: 0;
+    top: -1px;
+    display: block;
+    border: 1px solid black;
+}
+
+    .P-checkbox-block span:before {
+        position: absolute;
+        content: '';
+        width: 7px;
+        height: 3px;
+        transition: 0.3s;
+        left: 3px;
+        top: 4px;
+        border-left: 2px solid white;
+        border-bottom: 2px solid white;
+        opacity: 0;
+        visibility: hidden;
+        transform: rotate(-47deg);
+    }
+
+    .P-checkbox-block span.P-select {
+        background-color: black;
+    }
+
+        .P-checkbox-block span.P-select:before {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+.P-checkbox-block p {
+    padding-left: 25px;
+    color: black;
+    font-size: 14px;
+}
+
+body::-webkit-scrollbar {
+    width: 4px;
+    background-color: white;
+}
+
+body::-webkit-scrollbar-thumb {
+    background-color: black;
+}
+
+
+.P-result-header {
+    background-color: white;
+    padding: 15px;
+    border-radius: 6px 6px 0 0;
+}
+
+    .P-result-header h3 {
+        font-weight: bold;
+    }
+
+.P-sort-select {
+    width: 150px;
+}
+
+.P-sort-box > p {
+    margin-right: 15px;
+}
+
+
+.P-result-body {
+    padding: 15px;
+    background-color: white;
+    border-radius: 0 0 6px 6px;
+}
+
+
+.P-result-box {
+    padding: 15px;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .P-result-box:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+
+    .P-result-box + .P-result-box {
+        margin-top: 15px;
+    }
+
+
+.P-result-image {
+    width: 150px;
+    height: 150px;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+}
+
+.P-information {
+    width: calc(100% - 150px);
+    padding-left: 20px;
+}
+
+    .P-information h3 {
+        font-size: 20px;
+        font-weight: bold;
+        margin-bottom: 20px;
+    }
+
+    .P-information ul {
+        display: flex;
+        align-items: center;
+    }
+
+        .P-information ul li {
+            color: #cecece;
+            font-size: 16px;
+            margin-right: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+            .P-information ul li span {
+                display: block;
+                width: 18px;
+                height: 18px;
+                background-position: center;
+                background-size: contain;
+                background-repeat: no-repeat;
+                margin-right: 10px;
+            }
+
+.P-bookmark-btn button {
+    width: 150px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: #0C79C0;
+    color: white;
+    justify-content: center;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+    .P-bookmark-btn button span {
+        width: 20px;
+        height: 20px;
+        display: block;
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: contain;
+        margin-right: 10px;
+    }
+
+.P-apply-btn {
+    margin-top: 20px;
+}
+
+    .P-apply-btn button {
+        width: 220px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background-color: #92C848;
+        color: white;
+        justify-content: center;
+        border-radius: 6px;
+        cursor: pointer;
+    }
+
+.P-result-right-path {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+
+.P-body-fixed {
+    overflow: hidden;
+}

@@ -1,0 +1,27 @@
+﻿.P-details-modal-block {
+    padding: 25px;
+    width: 50vw;
+}
+
+
+    .P-details-modal-block .P-result-box {
+        border: none;
+    }
+
+        .P-details-modal-block .P-result-box:hover {
+            background-color: transparent;
+        }
+
+
+.P-close-modal {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    display: block;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+}
