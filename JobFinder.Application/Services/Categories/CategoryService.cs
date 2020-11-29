@@ -1,4 +1,5 @@
-﻿using JobFinder.Application.Dtos.Categories;
+﻿using System;
+using JobFinder.Application.Dtos.Categories;
 using JobFinder.Domain.Entities;
 using JobFinder.Domain.Exceptions;
 using JobFinder.Domain.Extensions;
@@ -7,16 +8,20 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace JobFinder.Application.Services.Categories
 {
     public class CategoryService : ICategoryService
     {
         private readonly IRepository _repo;
+        private readonly IMemoryCache _memoryCache;
 
-        public CategoryService(IRepository repo)
+        public CategoryService(IRepository repo,
+            IMemoryCache memoryCache)
         {
             _repo = repo;
+            _memoryCache = memoryCache;
         }
 
         public async Task<int> Add(AddCategoryModel model)
@@ -44,23 +49,37 @@ namespace JobFinder.Application.Services.Categories
 
         public async Task<CategoryDetailsModel> Get(int id)
         {
-            var category = await _repo.FilterAsNoTracking<Category>(x => x.Id == id).Select(x => new CategoryDetailsModel
+            var alreadyExist = _memoryCache.TryGetValue($"category{id}", out CategoryDetailsModel category);
+            if (!alreadyExist)
             {
-                Id = x.Id,
-                Name = x.Name,
-                JobsCount = x.JobCategories.Count
-            }).FirstOrDefaultAsync();
-            Guard.NotNull(category, nameof(category));
+                category = await _repo.FilterAsNoTracking<Category>(x => x.Id == id).Select(x =>
+                new CategoryDetailsModel
+                {
+                    Id = x.Id,
+                    Name = x.Name,
+                    JobsCount = x.JobCategories.Count
+                }).FirstOrDefaultAsync();
+                Guard.NotNull(category, nameof(category));
+                _memoryCache.Set($"category{id}", category, DateTimeOffset.UtcNow.AddMinutes(1));
+            }
+
             return category;
         }
 
         public async Task<IEnumerable<CategoryListModel>> GetList()
         {
-            return await _repo.GetAllAsNoTracking<Category>().Select(x => new CategoryListModel
+            var alreadyExist = _memoryCache.TryGetValue("categoryList", out List<CategoryListModel> categoryList);
+            if (!alreadyExist)
             {
-                Id = x.Id,
-                Name = x.Name
-            }).ToListAsync();
+                categoryList = await _repo.GetAllAsNoTracking<Category>().Select(x => new CategoryListModel
+                {
+                    Id = x.Id,
+                    Name = x.Name
+                }).ToListAsync();
+                _memoryCache.Set("categoryList", categoryList, DateTimeOffset.UtcNow.AddMinutes(1));
+            }
+
+            return categoryList;
         }
 
         public async Task<bool> Delete(int id)

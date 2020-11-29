@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace JobFinder.Application.Services.Companies
 {
@@ -18,11 +19,13 @@ namespace JobFinder.Application.Services.Companies
     {
         private readonly IRepository _repo;
         private readonly Lazy<IFilesService> _fileService;
+        private readonly IMemoryCache _memoryCache;
 
-        public CompanyService(IRepository repo, Lazy<IFilesService> filesService)
+        public CompanyService(IRepository repo, Lazy<IFilesService> filesService, IMemoryCache memoryCache)
         {
             _repo = repo;
             _fileService = filesService;
+            _memoryCache = memoryCache;
         }
 
         public async Task<int> Add(AddCompanyModel model)
@@ -66,16 +69,23 @@ namespace JobFinder.Application.Services.Companies
 
         public async Task<CompanyDetailsModel> Get(int id)
         {
-            var company = await _repo.FilterAsNoTracking<Company>(x => x.Id == id).Select(x => new CompanyDetailsModel
+            var alreadyExist = _memoryCache.TryGetValue($"company{id}", out CompanyDetailsModel company);
+            if (!alreadyExist)
             {
-                Id = x.Id,
-                Name = x.Name,
-                Address = x.Address,
-                Location = x.Location,
-                Logo = x.Logo,
-                JobsCount = x.Jobs.Count
-            }).FirstOrDefaultAsync();
-            Guard.NotNull(company, nameof(company));
+                company = await _repo.FilterAsNoTracking<Company>(x => x.Id == id).Select(x =>
+                   new CompanyDetailsModel
+                   {
+                       Id = x.Id,
+                       Name = x.Name,
+                       Address = x.Address,
+                       Location = x.Location,
+                       Logo = x.Logo,
+                       JobsCount = x.Jobs.Count
+                   }).FirstOrDefaultAsync();
+                Guard.NotNull(company, nameof(company));
+                _memoryCache.Set($"company{id}", company, DateTimeOffset.UtcNow.AddMinutes(1));
+            }
+
             return company;
         }
 

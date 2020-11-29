@@ -16,7 +16,7 @@ namespace JobFinder.Infrastructure.Data.DbContexts
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public SqlDbContext(DbContextOptions<SqlDbContext> options, IConfiguration configuration) : base(options)
+        public SqlDbContext(DbContextOptions<SqlDbContext> options) : base(options)
         {
             _httpContextAccessor = new HttpContextAccessor();
         }
