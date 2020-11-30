@@ -1,0 +1,15 @@
+﻿
+.P-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+}
+.P-pagination-item {
+    padding: 10px;
+    cursor: pointer;
+    font-size: 18px;
+}
+.P-pagination-selected-item {
+    font-weight: 700;
+    font-size: 18px;
+}

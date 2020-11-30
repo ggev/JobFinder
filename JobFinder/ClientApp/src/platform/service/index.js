@@ -57,7 +57,7 @@ class Connection {
             body: JSON.stringify(body),
             method: 'PUT',
             headers: HEADERS,
-            // credentials: 'include',
+            //credentials: 'include',
         })
 
         window.pendingRequest = false;
@@ -65,7 +65,7 @@ class Connection {
     }
     static GET = async (controllerName, actionName, queryConfig) => {
         const onlyQuery = !actionName && queryConfig;
-        const HEADERS = Connection.createHeaders();
+        const HEADERS = await Connection.createHeaders();
         window.pendingRequest = true;
         const response = await fetch(`api/${controllerName}${!onlyQuery ? '/' : ''}${actionName}${queryConfig ? `?${Connection.queryFromObject(queryConfig)}` : ''}`, {
             method: 'GET',

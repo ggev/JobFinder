@@ -27,8 +27,8 @@ namespace JobFinder.Controllers
             return await _service.Edit(model);
         }
 
-        [HttpGet]
-        public async Task<JobDetailsModel> Get([FromRoute] int id, [FromHeader] string userId)
+        [HttpGet("{id}")]
+        public async Task<JobDetailsModel> Get(int id, [FromHeader] string userId)
         {
             return await _service.Get(id, userId);
         }

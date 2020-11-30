@@ -7,7 +7,7 @@ namespace JobFinder.Application.Dtos.Jobs
 {
     public class JobPagingRequestModel : PagingRequestModel
     {
-        public IEnumerable<int> CategoryIds { get; set; }
+        public ICollection<int> CategoryIds { get; set; }
         public IEnumerable<City> Locations { get; set; }
         public IEnumerable<EmploymentType> EmploymentTypes { get; set; }
         public bool? Bookmarked { get; set; }

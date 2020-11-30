@@ -135,7 +135,7 @@
 }
 
 .P-main-block {
-    padding: 65px 0 125px 0;
+    padding: 65px 0 0px 0;
     position: relative;
     z-index: 90;
     display: flex;
@@ -296,6 +296,13 @@ body::-webkit-scrollbar-thumb {
     padding-left: 20px;
 }
 
+    .P-information h2 {
+        font-size: 22px;
+        font-weight: bold;
+        margin-bottom: 20px;
+        color: #ccc;
+    }
+
     .P-information h3 {
         font-size: 20px;
         font-weight: bold;
@@ -305,6 +312,7 @@ body::-webkit-scrollbar-thumb {
     .P-information ul {
         display: flex;
         align-items: center;
+        margin-top: 20px;
     }
 
         .P-information ul li {
@@ -331,22 +339,26 @@ body::-webkit-scrollbar-thumb {
     display: flex;
     align-items: center;
     padding: 10px;
-    background-color: #0C79C0;
+    background-color: rgba(12, 121, 192, 0.5);
     color: white;
     justify-content: center;
     border-radius: 6px;
     cursor: pointer;
 }
 
-    .P-bookmark-btn button span {
-        width: 20px;
-        height: 20px;
-        display: block;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-size: contain;
-        margin-right: 10px;
-    }
+button.bookmarked-btn {
+    background-color: rgba(12, 121, 192, 1) !important;
+}
+
+.P-bookmark-btn button span {
+    width: 20px;
+    height: 20px;
+    display: block;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    margin-right: 10px;
+}
 
 .P-apply-btn {
     margin-top: 20px;
@@ -358,13 +370,15 @@ body::-webkit-scrollbar-thumb {
         display: flex;
         align-items: center;
         padding: 10px;
-        background-color: #92C848;
+        background-color: rgba(146, 200, 72, 0.7);
         color: white;
         justify-content: center;
         border-radius: 6px;
         cursor: pointer;
     }
-
+button.applied-btn {
+    background-color: rgba(146, 200, 72, 1);
+}
 .P-result-right-path {
     display: flex;
     flex-direction: column;

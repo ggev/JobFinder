@@ -25,3 +25,6 @@
     background-repeat: no-repeat;
     background-size: contain;
 }
+.P-result-left-path {
+    align-items: flex-start;
+}

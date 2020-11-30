@@ -12,8 +12,10 @@ import Select from "../components/select/Select";
 import { categoryListForFilterBox, locationList, sortByList } from "./service";
 import Modal from "../components/modal/Modal.js";
 import ModalDetails from "../components/modal-detail/Modal-detail";
+import Pagination from '../components/pagination/pagination';
 
 import CategoryController from '../platform/api/category';
+import getImage from '../platform/service/uploadImage';
 import JobController from '../platform/api/jobs';
 export class Home extends Component {
 
@@ -29,19 +31,24 @@ export class Home extends Component {
         categoryList: [],
         jobsListReqM: {
             pageNumber: 1,
-            pageSize: 20,
-            descending: true,
+            pageSize: 10,
+            descending: false,
             search: '',
             categoryIds: [],
             locations: [],
             employmentTypes: [],
-            bookmarked: true,
-            appliedForJob: true,
+            bookmarked: null,
+            appliedForJob: null,
             orderBy: 1
         },
         bookmarkModel: {
             id: null,
             mark: false
+        },
+        jobList: {
+            data: [],
+            pageCount: null,
+            totalCount: null
         }
     }
 
@@ -55,32 +62,50 @@ export class Home extends Component {
         if (res && res.success) {
             this.setState({ categoryList: res.data.map(x => ({ name: x.name, value: x.id })) });
         }
-    } 
+    }
 
     async getJobsList() {
-        const { jobsListReqM } = this.state;
+        const { jobsListReqM, jobList, selectedItem  } = this.state;
         const res = await JobController.getList(jobsListReqM);
         if (res && res.success) {
-            console.log(res)
+            this.setState({ jobList: res.data });
+            if (!!selectedItem) {
+                const result = await JobController.detail(selectedItem.id);
+                if (result && result.success) {
+                    this.setState({
+                        selectedItem: result.data
+                    })
+                }
+            }
         }
     }
-    async checkBookmark() {
-        const { bookmarkModel } = this.state;
-        const res = await JobController.bookmark(bookmarkModel);
+    async checkBookmark(e, id, bookmark) {
+        e.stopPropagation();
+        const body = {
+            id: id,
+            mark: bookmark
+        }
+        const res = await JobController.bookmark(body);
         if (res && res.success) {
             this.getJobsList();
         }
+
     }
-    async applyJob(id) {
+    async applyJob(e, id) {
+        e.stopPropagation();
         const res = await JobController.apply({ id });
         if (res && res.success) {
             this.getJobsList();
         }
     }
     changeCategory = (options) => {
-        const { formSearch } = this.state
-        formSearch.category = options.value;
-        this.setState({ formSearch })
+        const { jobsListReqM } = this.state;
+        const index = jobsListReqM.categoryIds.findIndex(x => x === options.value);
+        if (index > -1) {
+            jobsListReqM.categoryIds.splice(index, 1);
+        } else jobsListReqM.categoryIds.push(options.value);
+        this.setState({ jobsListReqM });
+        this.getJobsList();
     }
 
     changeLocation = (options) => {
@@ -101,57 +126,49 @@ export class Home extends Component {
             })
         }
     }
-
+    
     changeFilter = (itemValue) => {
-        const { filterReq } = this.state
-        const index = filterReq.indexOf(itemValue);
+        const { jobsListReqM } = this.state
+        const index = jobsListReqM.categoryIds.indexOf(itemValue);
         if (index >= 0) {
-            filterReq.splice(index, 1);
+            jobsListReqM.categoryIds.splice(index, 1);
         } else {
-            filterReq.push(itemValue);
+            jobsListReqM.categoryIds.push(itemValue);
         }
-        this.setState({ filterReq });
+        this.setState({ jobsListReqM });
+        this.getJobsList();
     }
-
-    data = [
-        {
-            title: 'Senior Web developer',
-            image: CoverImage,
-            location: 'Yerevan, Armenia',
-            time: 'Full Time'
-        },
-        {
-            title: 'Senior Web developer',
-            image: CoverImage,
-            location: 'Yerevan, Armenia',
-            time: 'Full Time'
-        },
-        {
-            title: 'Senior Web developer',
-            image: CoverImage,
-            location: 'Yerevan, Armenia',
-            time: 'Full Time'
-        },
-        {
-            title: 'Senior Web developer',
-            image: CoverImage,
-            location: 'Yerevan, Armenia',
-            time: 'Full Time'
-        },
-        {
-            title: 'Senior Web developer',
-            image: CoverImage,
-            location: 'Yerevan, Armenia',
-            time: 'Full Time'
+    changeenploymentType = (itemValue) => {
+        const { jobsListReqM } = this.state
+        const index = jobsListReqM.employmentTypes.indexOf(itemValue);
+        if (index >= 0) {
+            jobsListReqM.employmentTypes.splice(index, 1);
+        } else {
+            jobsListReqM.employmentTypes.push(itemValue);
         }
-    ]
-
-    openModal = (item) => {
-        document.body.classList.add('P-body-fixed')
-        this.setState({
-            isOpenModal: true,
-            selectedItem: item
-        })
+        this.setState({ jobsListReqM });
+        this.getJobsList();
+    }
+    changeLocationType = (itemValue) => {
+        const { jobsListReqM } = this.state
+        const index = jobsListReqM.locations.indexOf(itemValue);
+        if (index >= 0) {
+            jobsListReqM.locations.splice(index, 1);
+        } else {
+            jobsListReqM.locations.push(itemValue);
+        }
+        this.setState({ jobsListReqM });
+        this.getJobsList();
+    }
+    openModal = async (item) => {
+        const res = await JobController.detail(item.id);
+        if (res && res.success) {
+            document.body.classList.add('P-body-fixed');
+            this.setState({
+                isOpenModal: true,
+                selectedItem: res.data
+            })
+        }
     }
     closeModal = () => {
         document.body.classList.remove('P-body-fixed')
@@ -159,9 +176,40 @@ export class Home extends Component {
             isOpenModal: false
         })
     }
+    change = (e) => {
+        const { jobsListReqM } = this.state;
+        jobsListReqM.search = e.target.value;
+        this.setState({ jobsListReqM });
+        this.getJobsList();
+    }
+    changeListSorting = (item) => {
+        const { jobsListReqM } = this.state;
+        jobsListReqM.orderBy = item.value;
+        this.setState({ jobsListReqM });
+        this.getJobsList();
+    }
+    setCategory = (item) => {
+        const { jobsListReqM } = this.state;
+        jobsListReqM.categoryIds = [item.value];
+        this.setState({ jobsListReqM });
+        this.getJobsList();
+    }
+    setLocation = (item) => {
+        const { jobsListReqM } = this.state;
+        jobsListReqM.locations = [item.value];
+        this.setState({ jobsListReqM });
+        this.getJobsList();
+    }
+    getPage = (page) => {
+        const { jobsListReqM } = this.state;
+        jobsListReqM.pageNumber = page;
+        this.setState({ jobsListReqM });
+        window.scrollTo(0, 0)
 
+        this.getJobsList();
+    }
     render() {
-        const { formSearch, isActiveSearchBox, filterReq, categoryList } = this.state
+        const { formSearch, isActiveSearchBox, filterReq, categoryList, jobList, jobsListReqM } = this.state
         return (
 
             <div className='G-container'>
@@ -184,7 +232,7 @@ export class Home extends Component {
                                 placeholderOpacity={true}
                                 isAllList={true}
                                 disabled={false}
-                                onChange={this.changeCategory} />
+                                onChange={this.setCategory} />
                         </div>
                         <div className='P-search-box'>
                             <Select placeholder='Job Location'
@@ -195,15 +243,15 @@ export class Home extends Component {
                                 placeholderOpacity={true}
                                 isAllList={true}
                                 disabled={false}
-                                onChange={this.changeLocation} />
+                                onChange={this.setLocation} />
                         </div>
                         <div className='P-input-box'>
                             <label>
-                                <input placeholder='Type your key word' type="text" />
+                                <input placeholder='Type your key word' onChange={this.change} type="text" />
                             </label>
                         </div>
                         <div className='P-search-btn'>
-                            <button>SEARCH</button>
+                            <button onClick={(e) => { e.preventDefault(); this.getJobsList(); }}>SEARCH</button>
                         </div>
                     </div>
                     <div className='P-main-block'>
@@ -220,7 +268,7 @@ export class Home extends Component {
                                             return <li key={index} onClick={() => this.changeFilter(item.value)}>
                                                 <div className="P-checkbox-block">
                                                     <label>
-                                                        <span className={`${filterReq.includes(item.value) ? 'P-select' : ''}`} />
+                                                        <span className={`${jobsListReqM.categoryIds.includes(item.value) ? 'P-select' : ''}`} />
                                                         <p>{item.name}</p>
                                                     </label>
                                                 </div>
@@ -238,10 +286,10 @@ export class Home extends Component {
                                 <div className={`P-filter-box-body ${isActiveSearchBox === 2 ? 'P-open-filter-box' : ''}`}>
                                     <ul>
                                         {categoryListForFilterBox.map((item, index) => {
-                                            return <li key={index} onClick={() => this.changeFilter(item.value)}>
+                                            return <li key={index} onClick={() => this.changeenploymentType(item.value)}>
                                                 <div className="P-checkbox-block">
                                                     <label>
-                                                        <span className={`${filterReq.includes(item.value) ? 'P-select' : ''}`} />
+                                                        <span className={`${jobsListReqM.employmentTypes.includes(item.value) ? 'P-select' : ''}`} />
                                                         <p>{item.name}</p>
                                                     </label>
                                                 </div>
@@ -259,10 +307,10 @@ export class Home extends Component {
                                 <div className={`P-filter-box-body ${isActiveSearchBox === 3 ? 'P-open-filter-box' : ''}`}>
                                     <ul>
                                         {locationList.map((item, index) => {
-                                            return <li key={index} onClick={() => this.changeFilter(item.value)}>
+                                            return <li key={index} onClick={() => this.changeLocationType(item.value)}>
                                                 <div className="P-checkbox-block">
                                                     <label>
-                                                        <span className={`${filterReq.includes(item.value) ? 'P-select' : ''}`} />
+                                                        <span className={`${jobsListReqM.locations.includes(item.value) ? 'P-select' : ''}`} />
                                                         <p>{item.name}</p>
                                                     </label>
                                                 </div>
@@ -276,7 +324,7 @@ export class Home extends Component {
                         </div>
                         <div className='P-right-path'>
                             <div className='P-result-header G-flex G-align-center G-justify-between'>
-                                <h3>Showing 10 of 26,012 offers</h3>
+                                <h3>Showing {jobList.data.length} of {jobList.totalCount} offers</h3>
                                 <div className='P-sort-box G-flex G-align-center'>
                                     <p>Sort by:</p>
                                     <div className='P-sort-select '>
@@ -284,48 +332,57 @@ export class Home extends Component {
                                             options={sortByList}
                                             listKey={'value'}
                                             useValue={true}
-                                            value={formSearch.location}
+                                            value={sortByList.find(x => x.value === jobsListReqM.orderBy)}
                                             placeholderOpacity={true}
                                             isAllList={true}
                                             disabled={false}
-                                            onChange={this.changeLocation} />
+                                            onChange={this.changeListSorting} />
                                     </div>
                                 </div>
                             </div>
                             <div className='P-result-body'>
-                                {this.data.map((item, index) => {
+                                {!!jobList.data.length && jobList.data.map((item, index) => {
                                     return <div key={index} className='P-result-box G-flex G-align-center G-justify-between'
                                         onClick={() => this.openModal(item)}>
                                         <div className='P-result-left-path G-flex G-align-center'>
-                                            <div className='P-result-image' style={{ backgroundImage: `url('${item.image}')` }} />
+                                            <div className='P-result-image' style={{ backgroundImage: `url('${getImage(item.companyLogo)}')` }} />
                                             <div className='P-information'>
+                                                <h2>{item.companyName}</h2>
                                                 <h3>{item.title}</h3>
                                                 <ul>
-                                                    <li><span style={{ backgroundImage: `url('${LocationImage}')` }} /> {item.location}</li>
-                                                    <li><span style={{ backgroundImage: `url('${ClockImage}')` }} /> {item.time}</li>
+                                                    <li><span style={{ backgroundImage: `url('${LocationImage}')` }} /> {item.location }, {item.address}</li>
+                                                    <li><span style={{ backgroundImage: `url('${ClockImage}')` }} /> {item.employmentType}</li>
                                                 </ul>
                                             </div>
                                         </div>
                                         <div className='P-result-right-path'>
                                             <div className='P-bookmark-btn'>
-                                                <button onClick={this.checkBookmark}><span style={{ backgroundImage: `url('${BookmarkImage}')` }} /> Bookmark</button>
+                                                <button onClick={(e) => this.checkBookmark(e, item.id, !item.bookmarked)} className={`${item.bookmarked ? 'bookmarked-btn' : ''}`}><span style={{ backgroundImage: `url('${BookmarkImage}')` }} />
+                                                    {item.bookmarked ? 'Bookmarked' : 'Bookmark'}
+                                                </button>
                                             </div>
                                             <div className='P-apply-btn'>
-                                                <button onClick={() => this.applyJob(item.id)}><span style={{ backgroundImage: `url('${BriefcaseImage}')` }} /> Apply for this job
-                          </button>
+                                                <button onClick={(e) => this.applyJob(e, item.id)} className={`${item.appliedForJob ? 'applied-btn' : ''}` }><span style={{ backgroundImage: `url('${BriefcaseImage}')` }} />
+                                                    {item.appliedForJob ? 'Job was applied' : 'Apply for this job'}
+
+                                                </button>
                                             </div>
                                         </div>
                                     </div>
-
                                 })}
                             </div>
                         </div>
                     </div>
+                    <Pagination pageCount={jobList.pageCount} callback={(page) => this.getPage(page)} />
                 </div>
 
                 <Modal hangeClass={'P-details-modal-container'} isOpen={this.state.isOpenModal}
                     close={this.closeModal}>
-                    <ModalDetails close={this.closeModal} item={this.state.selectedItem} />
+                    <ModalDetails
+                        apply={(e, id) => this.applyJob(e, id)}
+                        mark={(e, id, mark) => this.checkBookmark(e, id, mark)}
+                        close={this.closeModal}
+                        item={this.state.selectedItem} />
                 </Modal>
             </div>
 
