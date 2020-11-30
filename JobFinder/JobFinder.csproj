@@ -31,7 +31,6 @@
 
   <ItemGroup>
     <Folder Include="ClientApp\src\assets\images\" />
-    <Folder Include="ClientApp\src\platform\api\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 

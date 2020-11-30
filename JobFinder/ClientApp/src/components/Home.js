@@ -9,10 +9,12 @@ import ClockImage from '../assets/images/clock.png'
 import BookmarkImage from '../assets/images/bookmark.png'
 import BriefcaseImage from '../assets/images/briefcase.png'
 import Select from "../components/select/Select";
-import { categoryList, categoryListForFilterBox, locationList } from "./service";
+import { categoryListForFilterBox, locationList, sortByList } from "./service";
 import Modal from "../components/modal/Modal.js";
 import ModalDetails from "../components/modal-detail/Modal-detail";
 
+import CategoryController from '../platform/api/category';
+import JobController from '../platform/api/jobs';
 export class Home extends Component {
 
     state = {
@@ -23,9 +25,58 @@ export class Home extends Component {
             location: null
         },
         isActiveSearchBox: null,
-        filterReq: []
+        filterReq: [],
+        categoryList: [],
+        jobsListReqM: {
+            pageNumber: 1,
+            pageSize: 20,
+            descending: true,
+            search: '',
+            categoryIds: [],
+            locations: [],
+            employmentTypes: [],
+            bookmarked: true,
+            appliedForJob: true,
+            orderBy: 1
+        },
+        bookmarkModel: {
+            id: null,
+            mark: false
+        }
     }
 
+    componentDidMount() {
+        this.getCategoryList();
+        this.getJobsList();
+    }
+
+    async getCategoryList() {
+        const res = await CategoryController.getList();
+        if (res && res.success) {
+            this.setState({ categoryList: res.data.map(x => ({ name: x.name, value: x.id })) });
+        }
+    } 
+
+    async getJobsList() {
+        const { jobsListReqM } = this.state;
+        const res = await JobController.getList(jobsListReqM);
+        if (res && res.success) {
+            console.log(res)
+        }
+    }
+    async checkBookmark() {
+        const { bookmarkModel } = this.state;
+        const res = await JobController.bookmark(bookmarkModel);
+        if (res && res.success) {
+            this.getJobsList();
+        }
+    }
+    async applyJob(id) {
+        const res = await JobController.apply({ id });
+        if (res && res.success) {
+            this.getJobsList();
+        }
+    }
     changeCategory = (options) => {
         const { formSearch } = this.state
         formSearch.category = options.value;
@@ -110,7 +161,7 @@ export class Home extends Component {
     }
 
     render() {
-        const { formSearch, isActiveSearchBox, filterReq } = this.state
+        const { formSearch, isActiveSearchBox, filterReq, categoryList } = this.state
         return (
 
             <div className='G-container'>
@@ -136,7 +187,7 @@ export class Home extends Component {
                                 onChange={this.changeCategory} />
                         </div>
                         <div className='P-search-box'>
-                            <Select placeholder='Job Category'
+                            <Select placeholder='Job Location'
                                 options={locationList}
                                 listKey={'value'}
                                 useValue={true}
@@ -165,7 +216,7 @@ export class Home extends Component {
                                 </div>
                                 <div className={`P-filter-box-body ${isActiveSearchBox === 1 ? 'P-open-filter-box' : ''}`}>
                                     <ul>
-                                        {categoryListForFilterBox.map((item, index) => {
+                                        {categoryList.map((item, index) => {
                                             return <li key={index} onClick={() => this.changeFilter(item.value)}>
                                                 <div className="P-checkbox-block">
                                                     <label>
@@ -207,7 +258,7 @@ export class Home extends Component {
                                 </div>
                                 <div className={`P-filter-box-body ${isActiveSearchBox === 3 ? 'P-open-filter-box' : ''}`}>
                                     <ul>
-                                        {categoryListForFilterBox.map((item, index) => {
+                                        {locationList.map((item, index) => {
                                             return <li key={index} onClick={() => this.changeFilter(item.value)}>
                                                 <div className="P-checkbox-block">
                                                     <label>
@@ -230,7 +281,7 @@ export class Home extends Component {
                                     <p>Sort by:</p>
                                     <div className='P-sort-select '>
                                         <Select placeholder='Select sort'
-                                            options={locationList}
+                                            options={sortByList}
                                             listKey={'value'}
                                             useValue={true}
                                             value={formSearch.location}
@@ -257,10 +308,10 @@ export class Home extends Component {
                                         </div>
                                         <div className='P-result-right-path'>
                                             <div className='P-bookmark-btn'>
-                                                <button><span style={{ backgroundImage: `url('${BookmarkImage}')` }} /> Bookmark</button>
+                                                <button onClick={this.checkBookmark}><span style={{ backgroundImage: `url('${BookmarkImage}')` }} /> Bookmark</button>
                                             </div>
                                             <div className='P-apply-btn'>
-                                                <button><span style={{ backgroundImage: `url('${BriefcaseImage}')` }} /> Apply for this job
+                                                <button onClick={() => this.applyJob(item.id)}><span style={{ backgroundImage: `url('${BriefcaseImage}')` }} /> Apply for this job
                           </button>
                                             </div>
                                         </div>
