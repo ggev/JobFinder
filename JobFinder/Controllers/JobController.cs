@@ -27,15 +27,15 @@ namespace JobFinder.Controllers
             return await _service.Edit(model);
         }
 
-        [HttpGet]
-        public async Task<JobDetailsModel> Get([FromRoute] int id, [FromHeader] string userId)
+        [HttpGet("{id}")]
+        public async Task<JobDetailsModel> Get(int id, [FromHeader] string userId)
         {
             return await _service.Get(id, userId);
         }
 
         [HttpPost]
         [Route("[action]")]
-        public async Task<PagingResponseModel<JobListModel>> GetList(JobPagingRequestModel model, [FromHeader] string userId)
+        public async Task<PagingResponseModel<JobListModel>> GetList([FromBody]JobPagingRequestModel model, [FromHeader] string userId)
         {
             return await _service.GetList(model, userId);
         }

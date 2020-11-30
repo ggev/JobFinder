@@ -83,16 +83,16 @@ namespace JobFinder.Application.Services.Jobs
                     x.Description.Contains(key));
             }
 
-            if (!model.EmploymentTypes.Equals(default))
+            if (model.EmploymentTypes.Any())
                 query = query.Where(x => model.EmploymentTypes.Contains(x.EmploymentType));
-            if (!model.CategoryIds.Equals(default))
-                query = query.Where(x => model.CategoryIds.Intersect(x.JobCategories.Select(c => c.CategoryId)).Any());
-            if (!model.Locations.Equals(default))
+            if (model.CategoryIds.Any())
+                query = query.Where(x => x.JobCategories.Select(j => j.CategoryId).Any(j => model.CategoryIds.Contains(j)));
+            if (model.Locations.Any())
                 query = query.Where(x => model.Locations.Contains(x.Company.Location));
             if (model.Bookmarked.HasValue)
-                query = query.Where(x => x.UserJobs.Any(u => u.User.IdentityKey == userId && u.Bookmarked));
+                query = query.Where(x => x.UserJobs.Any(u => u.User.IdentityKey == userId && u.Bookmarked == model.Bookmarked));
             if (model.AppliedForJob.HasValue)
-                query = query.Where(x => x.UserJobs.Any(u => u.User.IdentityKey == userId && u.AppliedForJob));
+                query = query.Where(x => x.UserJobs.Any(u => u.User.IdentityKey == userId && u.AppliedForJob == model.AppliedForJob));
 
             if (!model.Descending)
                 query = model.OrderBy switch
@@ -123,6 +123,8 @@ namespace JobFinder.Application.Services.Jobs
                     Title = x.Title,
                     EmploymentType = x.EmploymentType,
                     Address = x.Company.Address,
+                    CompanyName = x.Company.Name,
+                    Location = x.Company.Location,
                     CompanyLogo = x.Company.Logo,
                     Bookmarked = x.UserJobs.Any(u => u.User.IdentityKey == userId && u.Bookmarked),
                     AppliedForJob = x.UserJobs.Any(u => u.User.IdentityKey == userId && u.AppliedForJob)

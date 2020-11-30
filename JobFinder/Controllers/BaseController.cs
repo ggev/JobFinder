@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Security.Claims;
-using JobFinder.ActionFilters;
-using Microsoft.AspNetCore.Mvc;
 
 namespace JobFinder.Controllers
 {
-    [MakeActionResponse]
     [Route("api/[controller]")]
     public class BaseController : Controller
     {
